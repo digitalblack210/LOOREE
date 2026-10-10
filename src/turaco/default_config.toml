@@ -1,0 +1,59 @@
+# Turaco settings. After editing, choose "Reload config and model" from the
+# tray icon menu.
+
+[hotkey]
+# Keys to hold while speaking, joined with "+".
+# Available: ctrl, shift, alt, win, f1 ... f24
+keys = "ctrl+win"
+# Holds shorter than this are ignored as accidental taps.
+min_hold_ms = 250
+# A recording is ended and transcribed when it reaches this length, in case a
+# key gets stuck.
+max_hold_seconds = 600
+
+[microphone]
+# "" uses the system default input device. Otherwise give part of a device
+# name (for example "Headset") or a device index.
+device = ""
+# Keep the microphone stream open while Turaco runs, so the start of a dictation
+# is never cut off. Windows shows its microphone indicator the whole time.
+# Set to false to open the microphone only while the hotkey is held.
+keep_open = true
+
+[model]
+name = "nemo-parakeet-tdt-0.6b-v3"
+# "int8" is the small, fast quantized model. "" selects full precision.
+quantization = "int8"
+# "cpu" is the fastest choice for the int8 model. "cuda" runs on an NVIDIA GPU,
+# which suits the full precision model. "auto" uses the GPU when one works and
+# the CPU otherwise.
+device = "cpu"
+
+[overlay]
+enabled = true
+recording_color = "#34C98E"
+transcribing_color = "#8C9BFF"
+# How far the glow reaches in from the screen edge, in pixels.
+thickness = 90
+# The glow pulses slowly and swells with your voice. Set to false for a steady
+# glow with no movement at all.
+animate = true
+
+[paste]
+# Add a space after each transcript so back-to-back dictations do not run together.
+trailing_space = true
+# How long the focused app gets to read the clipboard before the previous
+# contents are restored. Raise this if pastes come out empty or stale.
+restore_delay_ms = 300
+
+[cleanup]
+# Remove filler words (um, uh) and stuttered repeats ("I I") from transcripts.
+remove_fillers = true
+# Optional: polish each transcript with a local model served by Ollama
+# (https://ollama.com). It fixes punctuation, drops false starts and keeps only
+# the correction when you correct yourself. Give the Ollama model name, for
+# example "gemma4:e2b-it-qat". "" turns polishing off.
+polish_model = ""
+ollama_url = "http://127.0.0.1:11434"
+# If the model takes longer than this, the transcript is pasted without polish.
+polish_timeout_ms = 3000

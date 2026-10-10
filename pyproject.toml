@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "turaco"
+version = "0.1.0"
+description = "Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "onnx-asr[hub]>=0.12",
+    # Ships the CPU provider too, so this one wheel covers both devices.
+    "onnxruntime-gpu[cuda,cudnn]>=1.31",
+    "PySide6-Essentials>=6.6",
+    "sounddevice",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.gui-scripts]
+# Starts without a console window.
+turaco = "turaco.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+turaco = ["default_config.toml", "assets/*.png"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
