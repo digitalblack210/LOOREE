@@ -112,6 +112,7 @@ class GlowTimeline:
         alpha, reach = glow_shape(self.color_state, elapsed, self._level, self.animate)
         return min(1.0, alpha) * self._fade, reach
 
+
 class _Strip(QWidget):
     """One edge of the glow: a click-through window that never takes focus."""
 

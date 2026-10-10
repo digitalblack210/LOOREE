@@ -15,9 +15,7 @@ log = logging.getLogger(__name__)
 _FILLER = re.compile(r"(?<![\w'-])(?:um+|uh+m*|er+m*)(?![\w'-])\s*[,;]?\s*", re.IGNORECASE)
 # Short words people double when they hesitate. Words that double legitimately
 # ("that that", "had had") are deliberately not listed.
-_STUTTER = re.compile(
-    r"\b(i|the|a|an|to|and|we|it|you|of|in|my|so|but|if|or)(?:\s+\1)+\b", re.IGNORECASE
-)
+_STUTTER = re.compile(r"\b(i|the|a|an|to|and|we|it|you|of|in|my|so|but|if|or)(?:\s+\1)+\b", re.IGNORECASE)
 _SENTENCE_START = "\x00"
 MAX_RESPONSE_BYTES = 1_000_000
 

@@ -2,6 +2,11 @@
 
 <img src="src/turaco/assets/turaco.png" alt="Turaco icon: the head of a Guinea turaco" width="96">
 
+[![CI](https://github.com/digitalblack210/turaco/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/turaco/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
+![Windows 11](https://img.shields.io/badge/platform-Windows%2011-blue.svg)
+
 Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet.
 
 Hold Ctrl+Win, speak, and release. Turaco transcribes on your own machine and
@@ -16,11 +21,14 @@ pastes the text into whatever app has focus. Nothing leaves the computer.
 ## Setup
 
 ```powershell
-git clone <repo-url> turaco
+git clone https://github.com/digitalblack210/turaco.git
 cd turaco
 py -m venv .venv
 .venv\Scripts\pip install -e .
 ```
+
+The install takes about 2 GB of disk, most of it the NVIDIA CUDA libraries
+that GPU support needs.
 
 ## Run
 
@@ -119,6 +127,9 @@ happens if Ollama is not running or is too slow.
 
 ## Privacy
 
+- To see the hotkey from any app, Turaco installs a global keyboard hook. It
+  tracks only the hotkey's own keys; any other key just cancels a hold in
+  progress. No keystrokes are recorded, logged or sent anywhere.
 - Audio is processed in memory and never written to disk.
 - Transcripts are never logged. The log (`%LOCALAPPDATA%\Turaco\turaco.log`)
   records only timings and character counts.
@@ -152,7 +163,16 @@ or `enabled = false` to turn it off.
 .venv\Scripts\python scripts\transcribe_wav.py path\to\audio.wav
 ```
 
-Add `--device cpu` or `--device cuda` to choose a provider.
+Add `--device cpu` or `--device cuda` to choose a provider. Without it the
+script uses the GPU when one works and the CPU otherwise.
+
+## Uninstall
+
+1. Untick **Start with Windows** in the tray menu, then choose **Quit**.
+2. Delete the cloned folder.
+3. Delete `%APPDATA%\Turaco` (settings) and `%LOCALAPPDATA%\Turaco` (logs).
+4. To reclaim the model's disk space, delete its folder from the Hugging Face
+   cache, `%USERPROFILE%\.cache\huggingface\hub` by default.
 
 ## Development
 
@@ -160,7 +180,12 @@ Add `--device cpu` or `--device cuda` to choose a provider.
 .venv\Scripts\pip install -e .[dev]
 .venv\Scripts\python -m pytest
 .venv\Scripts\python -m ruff check
+.venv\Scripts\python -m ruff format --check
 ```
+
+The tests run without a microphone, a GPU or the model. Bug reports and pull
+requests are welcome on the
+[issue tracker](https://github.com/digitalblack210/turaco/issues).
 
 ## Credits
 
