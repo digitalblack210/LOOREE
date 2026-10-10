@@ -12,6 +12,8 @@ Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet.
 Hold Ctrl+Win, speak, and release. Turaco transcribes on your own machine and
 pastes the text into whatever app has focus. Nothing leaves the computer.
 
+![A green glow frames the screen while speaking, turns blue while transcribing, then the sentence appears in Notepad](docs/demo.gif)
+
 ## Requirements
 
 - Windows 11
