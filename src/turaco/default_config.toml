@@ -49,11 +49,3 @@ restore_delay_ms = 300
 [cleanup]
 # Remove filler words (um, uh) and stuttered repeats ("I I") from transcripts.
 remove_fillers = true
-# Optional: polish each transcript with a local model served by Ollama
-# (https://ollama.com). It fixes punctuation, drops false starts and keeps only
-# the correction when you correct yourself. Give the Ollama model name, for
-# example "gemma4:e2b-it-qat". "" turns polishing off.
-polish_model = ""
-ollama_url = "http://127.0.0.1:11434"
-# If the model takes longer than this, the transcript is pasted without polish.
-polish_timeout_ms = 3000

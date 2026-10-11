@@ -89,43 +89,15 @@ from the tray menu, edit, then choose **Reload config and model**.
 | `paste` | `trailing_space` | `true` | Add a space after each transcript |
 | `paste` | `restore_delay_ms` | `300` | Wait before restoring the clipboard |
 | `cleanup` | `remove_fillers` | `true` | Drop "um", "uh" and stuttered repeats |
-| `cleanup` | `polish_model` | `""` | Ollama model used to polish transcripts; `""` turns it off |
-| `cleanup` | `ollama_url` | `"http://127.0.0.1:11434"` | Where Ollama is listening |
-| `cleanup` | `polish_timeout_ms` | `3000` | Paste without polish if the model is slower than this |
 
 The int8 model is built for CPUs and runs fastest there. The log states which
 provider is active each time the model loads.
 
 ## Cleanup
 
-Turaco tidies each transcript before pasting it.
-
-**Filler removal** is on by default and needs nothing extra. It drops "um",
-"uh" and "er", and collapses stuttered repeats such as "I I".
-
-**Polish** is optional and uses a small language model running on your own
-machine through [Ollama](https://ollama.com). It fixes punctuation, removes
-false starts, and keeps only the correction when you correct yourself:
-
-> "Send it to to John, no wait, send it to Sarah on Tuesday."
-> becomes "Send it to Sarah on Tuesday."
-
-To turn it on, install Ollama, pull a small model, and name it in the config:
-
-```powershell
-ollama pull gemma4:e2b-it-qat
-```
-
-```toml
-[cleanup]
-polish_model = "gemma4:e2b-it-qat"
-```
-
-The model is told to tidy the text and nothing else. As a safeguard, Turaco
-checks that the result is still made of your own words in your own order; if
-the model answers a question or follows an instruction in the transcript
-instead, its output is thrown away and the unpolished text is pasted. The same
-happens if Ollama is not running or is too slow.
+Turaco tidies each transcript before pasting it. It drops "um", "uh" and "er", and
+collapses stuttered repeats such as "I I". This needs no extra model and is on by
+default; set `remove_fillers = false` under `[cleanup]` to turn it off.
 
 ## Privacy
 
@@ -135,8 +107,6 @@ happens if Ollama is not running or is too slow.
 - Audio is processed in memory and never written to disk.
 - Transcripts are never logged. The log (`%LOCALAPPDATA%\Turaco\turaco.log`)
   records only timings and character counts.
-- Polish sends the transcript to `ollama_url`, which is your own machine by
-  default. Pointing it at another computer sends your transcripts there.
 - With `keep_open = true` the microphone stream stays open while Turaco runs, and
   Windows shows its microphone indicator. Audio outside a hotkey hold is
   discarded.

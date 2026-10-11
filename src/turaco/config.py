@@ -42,9 +42,6 @@ class Config:
     trailing_space: bool = True
     restore_delay_ms: int = 300
     remove_fillers: bool = True
-    polish_model: str = ""
-    ollama_url: str = "http://127.0.0.1:11434"
-    polish_timeout_ms: int = 3000
 
 
 # (section, key) in config.toml -> Config field
@@ -65,9 +62,6 @@ _KEYS = {
     ("paste", "trailing_space"): "trailing_space",
     ("paste", "restore_delay_ms"): "restore_delay_ms",
     ("cleanup", "remove_fillers"): "remove_fillers",
-    ("cleanup", "polish_model"): "polish_model",
-    ("cleanup", "ollama_url"): "ollama_url",
-    ("cleanup", "polish_timeout_ms"): "polish_timeout_ms",
 }
 
 
@@ -77,7 +71,6 @@ _LIMITS = {
     "max_hold_seconds": (5, 3600),
     "overlay_thickness": (20, 400),
     "restore_delay_ms": (0, 5000),
-    "polish_timeout_ms": (200, 60000),
 }
 
 
@@ -119,9 +112,6 @@ def parse_config(text: str) -> Config:
         if not low <= value <= high:
             log.warning("config: %s = %s is out of range, using %s", field, value, min(max(value, low), high))
             setattr(config, field, min(max(value, low), high))
-    if not config.ollama_url.startswith(("http://", "https://")):
-        log.warning("config: ollama_url must start with http:// or https://, using the default")
-        config.ollama_url = Config.ollama_url
     return config
 
 

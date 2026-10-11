@@ -62,17 +62,9 @@ def test_out_of_range_numbers_are_pulled_back():
         thickness = 100000
         [paste]
         restore_delay_ms = -1
-        [cleanup]
-        polish_timeout_ms = 0
         """
     )
     assert config.min_hold_ms == 0
     assert config.max_hold_seconds == 3600
     assert config.overlay_thickness == 400
     assert config.restore_delay_ms == 0
-    assert config.polish_timeout_ms == 200
-
-
-def test_ollama_url_must_be_http():
-    assert parse_config('[cleanup]\nollama_url = "file:///some/file"').ollama_url == Config.ollama_url
-    assert parse_config('[cleanup]\nollama_url = "https://example.test"').ollama_url == "https://example.test"

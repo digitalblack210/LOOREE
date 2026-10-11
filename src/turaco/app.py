@@ -180,8 +180,6 @@ class App(QObject):
             log.exception("Model load failed")
             self.model_failed.emit(str(exc), generation)
             return
-        if config.polish_model:
-            cleanup.warm_up_in_background(config.polish_model, config.ollama_url)
         self.model_loaded.emit(transcriber, generation)
 
     def _transcribe_and_paste(self, transcriber: Transcriber, samples, config: Config) -> None:
@@ -197,12 +195,6 @@ class App(QObject):
             )
             if config.remove_fillers:
                 text = cleanup.remove_fillers(text)
-            if text and config.polish_model:
-                started = time.perf_counter()
-                text = cleanup.polish(
-                    text, config.polish_model, config.ollama_url, config.polish_timeout_ms / 1000
-                )
-                log.info("Polished in %.2fs (%d characters)", time.perf_counter() - started, len(text))
         finally:
             self.transcription_done.emit()
         text = cleanup.single_line(text)
