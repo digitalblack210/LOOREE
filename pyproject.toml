@@ -36,8 +36,8 @@ dependencies = [
 dev = ["pytest", "ruff"]
 
 [project.urls]
-Homepage = "https://github.com/digitalblack210/turaco"
-Issues = "https://github.com/digitalblack210/turaco/issues"
+Homepage = "https://github.com/digitalblack210/TURACO"
+Issues = "https://github.com/digitalblack210/TURACO/issues"
 
 [project.gui-scripts]
 # Starts without a console window.

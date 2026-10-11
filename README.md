@@ -2,7 +2,7 @@
 
 <img src="src/turaco/assets/turaco.png" alt="Turaco icon: the head of a Guinea turaco" width="96">
 
-[![CI](https://github.com/digitalblack210/turaco/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/turaco/actions/workflows/ci.yml)
+[![CI](https://github.com/digitalblack210/TURACO/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/TURACO/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
 ![Windows 11](https://img.shields.io/badge/platform-Windows%2011-blue.svg)
@@ -23,8 +23,8 @@ pastes the text into whatever app has focus. Nothing leaves the computer.
 ## Setup
 
 ```powershell
-git clone https://github.com/digitalblack210/turaco.git
-cd turaco
+git clone https://github.com/digitalblack210/TURACO.git
+cd TURACO
 py -m venv .venv
 .venv\Scripts\pip install -e .
 ```
@@ -157,7 +157,7 @@ script uses the GPU when one works and the CPU otherwise.
 
 The tests run without a microphone, a GPU or the model. Bug reports and pull
 requests are welcome on the
-[issue tracker](https://github.com/digitalblack210/turaco/issues).
+[issue tracker](https://github.com/digitalblack210/TURACO/issues).
 
 ## Credits
 
