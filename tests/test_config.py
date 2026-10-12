@@ -2,7 +2,8 @@ from turaco.config import Config, default_config_text, parse_config
 
 
 def test_bundled_config_matches_the_defaults():
-    assert parse_config(default_config_text()) == Config()
+    config = parse_config(default_config_text())
+    assert config == Config()
 
 
 def test_empty_config_gives_the_defaults():

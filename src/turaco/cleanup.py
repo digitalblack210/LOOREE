@@ -39,3 +39,21 @@ def remove_fillers(text: str) -> str:
     text = re.sub(r"\s+(?=[.,;!?])", "", text)
     text = re.sub(r"\s{2,}", " ", text)
     return text.strip(" ,;")
+
+
+def apply_vocabulary(text: str, hears: dict[str, list[str]]) -> str:
+    """Put the words you want in place of the ways the speech model mishears them.
+
+    ``hears`` maps a wanted word ("Acme") to the phrases the model tends to produce for it
+    ("ack me", "ak me"). Matching is on whole words, ignoring capitalisation and the exact
+    spacing between words, and the wanted word itself is put back in its own capitalisation
+    ("acme" becomes "Acme"). A trailing 's stays: "ack me's" becomes "Acme's".
+    """
+    for wanted, phrases in hears.items():
+        for phrase in sorted({wanted, *phrases}, key=len, reverse=True):
+            words = phrase.split()
+            if not words:
+                continue
+            pattern = r"(?<![\w'-])" + r"[\s-]+".join(re.escape(word) for word in words) + r"(?![\w-])(?!'(?!s(?![\w])))"
+            text = re.sub(pattern, lambda _m, w=wanted: w, text, flags=re.IGNORECASE)
+    return text

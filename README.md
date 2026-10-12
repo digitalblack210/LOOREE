@@ -99,6 +99,19 @@ Turaco tidies each transcript before pasting it. It drops "um", "uh" and "er", a
 collapses stuttered repeats such as "I I". This needs no extra model and is on by
 default; set `remove_fillers = false` under `[cleanup]` to turn it off.
 
+## Words the model does not know
+
+The speech model cannot be given a word list, so Turaco fixes names after the fact. Under `[vocabulary.hears]` in
+`config.toml`, put the word you want on the left and the ways the model tends to write it on the right:
+
+```toml
+[vocabulary.hears]
+Acme = ["ack me", "ak me", "akmee"]
+```
+
+Matching is on whole words, in any capitalisation and spacing, so "Ack me's wings" becomes "Acme's wings" and
+"back me up" is left alone. Copy the wrong spellings from what Turaco actually pasted. The bundled config has only a commented example. After editing, choose "Reload config and model" from the tray menu.
+
 ## Privacy
 
 - To see the hotkey from any app, Turaco installs a global keyboard hook. It

@@ -195,6 +195,8 @@ class App(QObject):
             )
             if config.remove_fillers:
                 text = cleanup.remove_fillers(text)
+            if config.vocabulary:
+                text = cleanup.apply_vocabulary(text, config.vocabulary)
         finally:
             self.transcription_done.emit()
         text = cleanup.single_line(text)

@@ -49,3 +49,9 @@ restore_delay_ms = 300
 [cleanup]
 # Remove filler words (um, uh) and stuttered repeats ("I I") from transcripts.
 remove_fillers = true
+
+[vocabulary.hears]
+# Words the speech model does not know. On the left is the word you want; on the right are the
+# ways the model tends to write it (copy them from what Turaco actually pasted). Matching is on
+# whole words, in any capitalisation, so "ack me" becomes "Acme". Add your own names here, for example:
+# Acme = ["ack me", "ak me"]

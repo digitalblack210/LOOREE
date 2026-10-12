@@ -5,7 +5,7 @@ from __future__ import annotations
 import logging
 import os
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from importlib import resources
 from pathlib import Path
 
@@ -42,6 +42,7 @@ class Config:
     trailing_space: bool = True
     restore_delay_ms: int = 300
     remove_fillers: bool = True
+    vocabulary: dict[str, list[str]] = field(default_factory=dict)   # wanted word -> phrases the model mishears it as
 
 
 # (section, key) in config.toml -> Config field
@@ -88,6 +89,20 @@ def ensure_config_file() -> Path:
     return path
 
 
+def _parse_hears(value) -> dict[str, list[str]]:
+    """[vocabulary.hears]: Acme = ["ack me", "ak me"]. Entries that are not a word with a list of phrases are skipped."""
+    hears: dict[str, list[str]] = {}
+    if not isinstance(value, dict):
+        log.warning("config: [vocabulary.hears] must be a table of word = [phrases], ignoring it")
+        return hears
+    for wanted, phrases in value.items():
+        if isinstance(phrases, list) and all(isinstance(phrase, str) for phrase in phrases):
+            hears[wanted] = [phrase for phrase in phrases if phrase.strip()]
+        else:
+            log.warning("config: [vocabulary.hears] %s should be a list of phrases, skipping it", wanted)
+    return hears
+
+
 def parse_config(text: str) -> Config:
     """Build a Config from TOML text. Bad or unknown entries keep their defaults."""
     config = Config()
@@ -96,6 +111,9 @@ def parse_config(text: str) -> Config:
             log.warning("config: ignoring top-level key %r", section)
             continue
         for key, value in values.items():
+            if (section, key) == ("vocabulary", "hears"):
+                config.vocabulary = _parse_hears(value)
+                continue
             field = _KEYS.get((section, key))
             if field is None:
                 log.warning("config: unknown setting [%s] %s", section, key)
