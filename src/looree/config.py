@@ -42,7 +42,8 @@ class Config:
     trailing_space: bool = True
     restore_delay_ms: int = 300
     remove_fillers: bool = True
-    vocabulary: dict[str, list[str]] = field(default_factory=dict)   # wanted word -> phrases the model mishears it as
+    # wanted word -> phrases the model mishears it as
+    vocabulary: dict[str, list[str]] = field(default_factory=dict)
 
 
 # (section, key) in config.toml -> Config field
@@ -90,7 +91,10 @@ def ensure_config_file() -> Path:
 
 
 def _parse_hears(value) -> dict[str, list[str]]:
-    """[vocabulary.hears]: Acme = ["ack me", "ak me"]. Entries that are not a word with a list of phrases are skipped."""
+    """[vocabulary.hears]: Acme = ["ack me", "ak me"].
+
+    Entries that are not a word with a list of phrases are skipped.
+    """
     hears: dict[str, list[str]] = {}
     if not isinstance(value, dict):
         log.warning("config: [vocabulary.hears] must be a table of word = [phrases], ignoring it")

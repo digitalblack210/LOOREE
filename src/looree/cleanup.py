@@ -54,6 +54,10 @@ def apply_vocabulary(text: str, hears: dict[str, list[str]]) -> str:
             words = phrase.split()
             if not words:
                 continue
-            pattern = r"(?<![\w'-])" + r"[\s-]+".join(re.escape(word) for word in words) + r"(?![\w-])(?!'(?!s(?![\w])))"
+            pattern = (
+                r"(?<![\w'-])"
+                + r"[\s-]+".join(re.escape(word) for word in words)
+                + r"(?![\w-])(?!'(?!s(?![\w])))"
+            )
             text = re.sub(pattern, lambda _m, w=wanted: w, text, flags=re.IGNORECASE)
     return text

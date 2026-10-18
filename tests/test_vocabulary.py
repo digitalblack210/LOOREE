@@ -1,7 +1,7 @@
 import pytest
 
 from looree.cleanup import apply_vocabulary
-from looree.config import default_config_text, parse_config
+from looree.config import parse_config
 
 HEARS = {"Acme": ["ack me", "ak me", "akmee"]}
 
