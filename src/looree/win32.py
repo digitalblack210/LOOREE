@@ -1,4 +1,4 @@
-"""Thin ctypes bindings for the Win32 keyboard APIs Turaco needs."""
+"""Thin ctypes bindings for the Win32 keyboard APIs Looree needs."""
 
 from __future__ import annotations
 
@@ -20,8 +20,8 @@ WM_SYSKEYDOWN = 0x0104
 INPUT_KEYBOARD = 1
 KEYEVENTF_KEYUP = 0x0002
 
-# Tag on every key event Turaco injects, so the hook can tell them from real ones.
-TURACO_EXTRA_INFO = 0x54555243  # "TURC"
+# Tag on every key event Looree injects, so the hook can tell them from real ones.
+LOOREE_EXTRA_INFO = 0x4C4F4F52  # "LOOR"
 
 
 class KBDLLHOOKSTRUCT(ctypes.Structure):
@@ -130,9 +130,9 @@ def is_key_down(vk: int) -> bool:
 
 
 def send_keys(*events: tuple[int, bool]) -> None:
-    """Inject key events, each a (virtual key, is_down) pair, tagged as Turaco's own."""
+    """Inject key events, each a (virtual key, is_down) pair, tagged as Looree's own."""
     inputs = (INPUT * len(events))()
     for slot, (vk, down) in zip(inputs, events, strict=True):
         slot.type = INPUT_KEYBOARD
-        slot.ki = KEYBDINPUT(vk, 0, 0 if down else KEYEVENTF_KEYUP, 0, TURACO_EXTRA_INFO)
+        slot.ki = KEYBDINPUT(vk, 0, 0 if down else KEYEVENTF_KEYUP, 0, LOOREE_EXTRA_INFO)
     user32.SendInput(len(events), inputs, ctypes.sizeof(INPUT))

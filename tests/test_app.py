@@ -3,8 +3,8 @@
 import time
 from types import SimpleNamespace
 
-from turaco.app import MISSED_CHECKS_BEFORE_RELEASE, App
-from turaco.config import Config
+from looree.app import MISSED_CHECKS_BEFORE_RELEASE, App
+from looree.config import Config
 
 
 def make_app(held: bool, pressed_seconds_ago: float = 1.0):

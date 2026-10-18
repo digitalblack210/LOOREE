@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "turaco"
+name = "looree"
 version = "0.1.0"
 description = "Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet."
 readme = "README.md"
@@ -36,18 +36,18 @@ dependencies = [
 dev = ["pytest", "ruff"]
 
 [project.urls]
-Homepage = "https://github.com/digitalblack210/TURACO"
-Issues = "https://github.com/digitalblack210/TURACO/issues"
+Homepage = "https://github.com/digitalblack210/LOOREE"
+Issues = "https://github.com/digitalblack210/LOOREE/issues"
 
 [project.gui-scripts]
 # Starts without a console window.
-turaco = "turaco.__main__:main"
+looree = "looree.__main__:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-turaco = ["default_config.toml", "assets/*.png"]
+looree = ["default_config.toml", "assets/*.png"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

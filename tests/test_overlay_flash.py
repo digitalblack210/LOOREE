@@ -13,8 +13,8 @@ import random
 
 import pytest
 
-from turaco.config import Config
-from turaco.overlay import GlowTimeline
+from looree.config import Config
+from looree.overlay import GlowTimeline
 
 FRAME = 1 / 60
 MAX_FLASHES_PER_SECOND = 3

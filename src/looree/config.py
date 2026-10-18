@@ -13,11 +13,11 @@ log = logging.getLogger(__name__)
 
 
 def config_dir() -> Path:
-    return Path(os.environ.get("APPDATA") or Path.home()) / "Turaco"
+    return Path(os.environ.get("APPDATA") or Path.home()) / "Looree"
 
 
 def log_dir() -> Path:
-    return Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "Turaco"
+    return Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "Looree"
 
 
 def config_path() -> Path:
@@ -76,7 +76,7 @@ _LIMITS = {
 
 
 def default_config_text() -> str:
-    return resources.files("turaco").joinpath("default_config.toml").read_text(encoding="utf-8")
+    return resources.files("looree").joinpath("default_config.toml").read_text(encoding="utf-8")
 
 
 def ensure_config_file() -> Path:

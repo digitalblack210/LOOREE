@@ -7,7 +7,7 @@ import argparse
 import logging
 import time
 
-from turaco.transcriber import Transcriber
+from looree.transcriber import Transcriber
 
 
 def main() -> None:

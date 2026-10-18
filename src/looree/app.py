@@ -32,7 +32,7 @@ MISSED_CHECKS_BEFORE_RELEASE = 3
 
 def load_icon() -> QIcon:
     pixmap = QPixmap()
-    pixmap.loadFromData(resources.files("turaco").joinpath("assets/turaco.png").read_bytes())
+    pixmap.loadFromData(resources.files("looree").joinpath("assets/looree.png").read_bytes())
     return QIcon(pixmap)
 
 
@@ -66,7 +66,7 @@ class App(QObject):
         self.transcription_done.connect(self._on_transcription_done)
 
         self._build_tray()
-        threading.Thread(target=self._worker_loop, name="turaco-worker", daemon=True).start()
+        threading.Thread(target=self._worker_loop, name="looree-worker", daemon=True).start()
         self.reload()
 
     # --- tray -------------------------------------------------------------
@@ -93,11 +93,11 @@ class App(QObject):
 
     def _set_status(self, text: str) -> None:
         self._status_action.setText(text)
-        self.tray.setToolTip(f"Turaco: {text}")
+        self.tray.setToolTip(f"Looree: {text}")
 
     def _notify_problem(self, text: str) -> None:
         log.error(text)
-        self.tray.showMessage("Turaco", text, QSystemTrayIcon.MessageIcon.Warning)
+        self.tray.showMessage("Looree", text, QSystemTrayIcon.MessageIcon.Warning)
 
     # --- setup ------------------------------------------------------------
 
@@ -242,7 +242,7 @@ class App(QObject):
             self._missed_checks += 1
             if self._missed_checks < MISSED_CHECKS_BEFORE_RELEASE:
                 return
-            log.warning("Recording stopped: the hotkey was released without Turaco seeing it")
+            log.warning("Recording stopped: the hotkey was released without Looree seeing it")
             self.hotkey.reset()
         else:
             self._missed_checks = 0

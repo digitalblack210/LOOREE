@@ -1,7 +1,7 @@
 import pytest
 
-from turaco.cleanup import apply_vocabulary
-from turaco.config import default_config_text, parse_config
+from looree.cleanup import apply_vocabulary
+from looree.config import default_config_text, parse_config
 
 HEARS = {"Acme": ["ack me", "ak me", "akmee"]}
 

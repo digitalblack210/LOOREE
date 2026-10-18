@@ -1,6 +1,6 @@
 import pytest
 
-from turaco.cleanup import remove_fillers, single_line
+from looree.cleanup import remove_fillers, single_line
 
 
 @pytest.mark.parametrize(

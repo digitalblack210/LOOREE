@@ -72,7 +72,7 @@ class HotkeyListener:
         self._proc = win32.HOOKPROC(self._hook_proc)
 
     def start(self) -> None:
-        self._thread = threading.Thread(target=self._run, name="turaco-hotkey", daemon=True)
+        self._thread = threading.Thread(target=self._run, name="looree-hotkey", daemon=True)
         self._thread.start()
         self._ready.wait()
         if self._error:
@@ -124,7 +124,7 @@ class HotkeyListener:
     def _hook_proc(self, code: int, wparam: int, lparam: int) -> int:
         if code == 0:
             event = ctypes.cast(lparam, ctypes.POINTER(win32.KBDLLHOOKSTRUCT)).contents
-            if event.dwExtraInfo != win32.TURACO_EXTRA_INFO:
+            if event.dwExtraInfo != win32.LOOREE_EXTRA_INFO:
                 try:
                     self._handle(event.vkCode, wparam in (win32.WM_KEYDOWN, win32.WM_SYSKEYDOWN))
                 except Exception:

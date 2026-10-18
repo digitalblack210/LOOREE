@@ -1,15 +1,15 @@
-# Turaco
+# Looree
 
-<img src="src/turaco/assets/turaco.png" alt="Turaco icon: the head of a Guinea turaco" width="96">
+<img src="src/looree/assets/looree.png" alt="Looree icon: the head of a Guinea turaco" width="96">
 
-[![CI](https://github.com/digitalblack210/TURACO/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/TURACO/actions/workflows/ci.yml)
+[![CI](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
 ![Windows 11](https://img.shields.io/badge/platform-Windows%2011-blue.svg)
 
 Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet.
 
-Hold Ctrl+Win, speak, and release. Turaco transcribes on your own machine and
+Hold Ctrl+Win, speak, and release. Looree transcribes on your own machine and
 pastes the text into whatever app has focus. Nothing leaves the computer.
 
 ![A green glow frames the screen while speaking, turns blue while transcribing, then the sentence appears in Notepad](docs/demo.gif)
@@ -23,8 +23,8 @@ pastes the text into whatever app has focus. Nothing leaves the computer.
 ## Setup
 
 ```powershell
-git clone https://github.com/digitalblack210/TURACO.git
-cd TURACO
+git clone https://github.com/digitalblack210/LOOREE.git
+cd LOOREE
 py -m venv .venv
 .venv\Scripts\pip install -e .
 ```
@@ -35,26 +35,26 @@ that GPU support needs.
 ## Run
 
 ```powershell
-.venv\Scripts\pythonw -m turaco
+.venv\Scripts\pythonw -m looree
 ```
 
-Turaco starts without a console window and adds an icon to the system tray. To
+Looree starts without a console window and adds an icon to the system tray. To
 have it start when you sign in, right-click the tray icon and tick
 **Start with Windows**.
 
-The install also creates `.venv\Scripts\turaco.exe`, which does the same thing,
+The install also creates `.venv\Scripts\looree.exe`, which does the same thing,
 but Windows Smart App Control may block it because it is not signed.
 
 The first run downloads the Parakeet TDT 0.6B v3 model (int8 ONNX, about
-670 MB) from Hugging Face into the Hugging Face cache. After that Turaco runs
+670 MB) from Hugging Face into the Hugging Face cache. After that Looree runs
 fully offline.
 
-To watch the log in a console instead, run `.venv\Scripts\python -m turaco`.
+To watch the log in a console instead, run `.venv\Scripts\python -m looree`.
 
 ## Use
 
 - Hold **Ctrl+Win** and speak. A glow around the edges of the screen shows
-  that Turaco is listening and follows the level of your voice.
+  that Looree is listening and follows the level of your voice.
 - Release to transcribe. The glow changes colour while the text is produced,
   then the text is pasted at the cursor and the glow fades.
 - Holds shorter than 250 ms are ignored. Pressing any other key during the
@@ -68,7 +68,7 @@ The tray menu has **Open config**, **Open log folder**,
 
 ## Configuration
 
-Settings live in `%APPDATA%\Turaco\config.toml`, created on first run. Open it
+Settings live in `%APPDATA%\Looree\config.toml`, created on first run. Open it
 from the tray menu, edit, then choose **Reload config and model**.
 
 | Section | Setting | Default | Meaning |
@@ -95,13 +95,13 @@ provider is active each time the model loads.
 
 ## Cleanup
 
-Turaco tidies each transcript before pasting it. It drops "um", "uh" and "er", and
+Looree tidies each transcript before pasting it. It drops "um", "uh" and "er", and
 collapses stuttered repeats such as "I I". This needs no extra model and is on by
 default; set `remove_fillers = false` under `[cleanup]` to turn it off.
 
 ## Words the model does not know
 
-The speech model cannot be given a word list, so Turaco fixes names after the fact. Under `[vocabulary.hears]` in
+The speech model cannot be given a word list, so Looree fixes names after the fact. Under `[vocabulary.hears]` in
 `config.toml`, put the word you want on the left and the ways the model tends to write it on the right:
 
 ```toml
@@ -110,17 +110,17 @@ Acme = ["ack me", "ak me", "akmee"]
 ```
 
 Matching is on whole words, in any capitalisation and spacing, so "Ack me's wings" becomes "Acme's wings" and
-"back me up" is left alone. Copy the wrong spellings from what Turaco actually pasted. The bundled config has only a commented example. After editing, choose "Reload config and model" from the tray menu.
+"back me up" is left alone. Copy the wrong spellings from what Looree actually pasted. The bundled config has only a commented example. After editing, choose "Reload config and model" from the tray menu.
 
 ## Privacy
 
-- To see the hotkey from any app, Turaco installs a global keyboard hook. It
+- To see the hotkey from any app, Looree installs a global keyboard hook. It
   tracks only the hotkey's own keys; any other key just cancels a hold in
   progress. No keystrokes are recorded, logged or sent anywhere.
 - Audio is processed in memory and never written to disk.
-- Transcripts are never logged. The log (`%LOCALAPPDATA%\Turaco\turaco.log`)
+- Transcripts are never logged. The log (`%LOCALAPPDATA%\Looree\looree.log`)
   records only timings and character counts.
-- With `keep_open = true` the microphone stream stays open while Turaco runs, and
+- With `keep_open = true` the microphone stream stays open while Looree runs, and
   Windows shows its microphone indicator. Audio outside a hotkey hold is
   discarded.
 
@@ -138,8 +138,8 @@ or `enabled = false` to turn it off.
 
 ## Limitations
 
-- Turaco cannot see the hotkey while a window running as administrator has
-  focus, unless Turaco is started as administrator too.
+- Looree cannot see the hotkey while a window running as administrator has
+  focus, unless Looree is started as administrator too.
 - Text is inserted with Ctrl+V, so it only works where pasting does.
 
 ## Transcribe a file
@@ -155,7 +155,7 @@ script uses the GPU when one works and the CPU otherwise.
 
 1. Untick **Start with Windows** in the tray menu, then choose **Quit**.
 2. Delete the cloned folder.
-3. Delete `%APPDATA%\Turaco` (settings) and `%LOCALAPPDATA%\Turaco` (logs).
+3. Delete `%APPDATA%\Looree` (settings) and `%LOCALAPPDATA%\Looree` (logs).
 4. To reclaim the model's disk space, delete its folder from the Hugging Face
    cache, `%USERPROFILE%\.cache\huggingface\hub` by default.
 
@@ -170,7 +170,7 @@ script uses the GPU when one works and the CPU otherwise.
 
 The tests run without a microphone, a GPU or the model. Bug reports and pull
 requests are welcome on the
-[issue tracker](https://github.com/digitalblack210/TURACO/issues).
+[issue tracker](https://github.com/digitalblack210/LOOREE/issues).
 
 ## Credits
 
@@ -180,7 +180,7 @@ model, released under CC BY 4.0, through the
 [onnx-asr](https://github.com/istupakov/onnx-asr) library. The model is
 downloaded on first run and is not part of this repository.
 
-Turaco is an independent project. It is not affiliated with or endorsed by
+Looree is an independent project. It is not affiliated with or endorsed by
 NVIDIA.
 
 ## License

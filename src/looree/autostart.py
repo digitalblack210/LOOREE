@@ -1,4 +1,4 @@
-"""Start Turaco when the user signs in, via the per-user Run registry key."""
+"""Start Looree when the user signs in, via the per-user Run registry key."""
 
 from __future__ import annotations
 
@@ -7,13 +7,13 @@ import winreg
 from pathlib import Path
 
 _RUN_KEY = r"Software\Microsoft\Windows\CurrentVersion\Run"
-_VALUE = "Turaco"
+_VALUE = "Looree"
 
 
 def _command() -> str:
     # pythonw runs without a console window.
     pythonw = Path(sys.executable).with_name("pythonw.exe")
-    return f'"{pythonw}" -m turaco'
+    return f'"{pythonw}" -m looree'
 
 
 def is_enabled() -> bool:

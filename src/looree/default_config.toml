@@ -1,4 +1,4 @@
-# Turaco settings. After editing, choose "Reload config and model" from the
+# Looree settings. After editing, choose "Reload config and model" from the
 # tray icon menu.
 
 [hotkey]
@@ -15,7 +15,7 @@ max_hold_seconds = 600
 # "" uses the system default input device. Otherwise give part of a device
 # name (for example "Headset") or a device index.
 device = ""
-# Keep the microphone stream open while Turaco runs, so the start of a dictation
+# Keep the microphone stream open while Looree runs, so the start of a dictation
 # is never cut off. Windows shows its microphone indicator the whole time.
 # Set to false to open the microphone only while the hotkey is held.
 keep_open = true
@@ -52,6 +52,6 @@ remove_fillers = true
 
 [vocabulary.hears]
 # Words the speech model does not know. On the left is the word you want; on the right are the
-# ways the model tends to write it (copy them from what Turaco actually pasted). Matching is on
+# ways the model tends to write it (copy them from what Looree actually pasted). Matching is on
 # whole words, in any capitalisation, so "ack me" becomes "Acme". Add your own names here, for example:
 # Acme = ["ack me", "ak me"]

@@ -1,6 +1,6 @@
 import numpy as np
 
-from turaco.transcriber import CHUNK_SECONDS, SAMPLE_RATE, split_at_pauses
+from looree.transcriber import CHUNK_SECONDS, SAMPLE_RATE, split_at_pauses
 
 
 def speech_with_pauses(seconds: int, pause_every: float = 7.0) -> np.ndarray:

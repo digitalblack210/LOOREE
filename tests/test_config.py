@@ -1,4 +1,4 @@
-from turaco.config import Config, default_config_text, parse_config
+from looree.config import Config, default_config_text, parse_config
 
 
 def test_bundled_config_matches_the_defaults():

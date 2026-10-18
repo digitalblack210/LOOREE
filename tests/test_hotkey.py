@@ -1,7 +1,7 @@
 import pytest
 
-from turaco import hotkey
-from turaco.hotkey import HotkeyListener, parse_hotkey
+from looree import hotkey
+from looree.hotkey import HotkeyListener, parse_hotkey
 
 LCTRL, RCTRL, LWIN, KEY_D = 0xA2, 0xA3, 0x5B, 0x44
 

@@ -1,4 +1,4 @@
-"""Run Turaco: python -m turaco"""
+"""Run Looree: python -m looree"""
 
 import logging
 import os
@@ -13,7 +13,7 @@ def _setup_logging(console: bool) -> None:
 
     log_dir().mkdir(parents=True, exist_ok=True)
     handlers: list[logging.Handler] = [
-        RotatingFileHandler(log_dir() / "turaco.log", maxBytes=500_000, backupCount=2, encoding="utf-8")
+        RotatingFileHandler(log_dir() / "looree.log", maxBytes=500_000, backupCount=2, encoding="utf-8")
     ]
     if console:
         handlers.append(logging.StreamHandler())
@@ -26,7 +26,7 @@ def _setup_logging(console: bool) -> None:
     # Without these, an error on the Qt thread or a worker thread would vanish
     # when there is no console.
     def log_uncaught(exc_type, exc, traceback) -> None:
-        logging.getLogger("turaco").critical("Uncaught exception", exc_info=(exc_type, exc, traceback))
+        logging.getLogger("looree").critical("Uncaught exception", exc_info=(exc_type, exc, traceback))
 
     sys.excepthook = log_uncaught
     threading.excepthook = lambda args: log_uncaught(args.exc_type, args.exc_value, args.exc_traceback)
@@ -43,8 +43,8 @@ def main() -> None:
 
     from . import win32
 
-    if not win32.acquire_single_instance("Local\\TuracoSingleInstance"):
-        print("Turaco is already running.")
+    if not win32.acquire_single_instance("Local\\LooreeSingleInstance"):
+        print("Looree is already running.")
         return
 
     _setup_logging(console)
