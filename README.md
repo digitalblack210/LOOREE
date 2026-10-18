@@ -2,6 +2,7 @@
 
 <img src="https://raw.githubusercontent.com/digitalblack210/LOOREE/main/src/looree/assets/looree.png" alt="Looree icon: the head of a Guinea turaco" width="96">
 
+[![PyPI](https://img.shields.io/pypi/v/looree.svg)](https://pypi.org/project/looree/)
 [![CI](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/digitalblack210/LOOREE/blob/main/LICENSE)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
