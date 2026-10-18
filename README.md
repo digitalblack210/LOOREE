@@ -1,9 +1,9 @@
 # Looree
 
-<img src="src/looree/assets/looree.png" alt="Looree icon: the head of a Guinea turaco" width="96">
+<img src="https://raw.githubusercontent.com/digitalblack210/LOOREE/main/src/looree/assets/looree.png" alt="Looree icon: the head of a Guinea turaco" width="96">
 
 [![CI](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml/badge.svg)](https://github.com/digitalblack210/LOOREE/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://github.com/digitalblack210/LOOREE/blob/main/LICENSE)
 ![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)
 ![Windows 11](https://img.shields.io/badge/platform-Windows%2011-blue.svg)
 
@@ -12,7 +12,7 @@ Offline push-to-talk dictation for Windows, powered by NVIDIA Parakeet.
 Hold Ctrl+Win, speak, and release. Looree transcribes on your own machine and
 pastes the text into whatever app has focus. Nothing leaves the computer.
 
-![A green glow frames the screen while speaking, turns blue while transcribing, then the sentence appears in Notepad](docs/demo.gif)
+![A green glow frames the screen while speaking, turns blue while transcribing, then the sentence appears in Notepad](https://raw.githubusercontent.com/digitalblack210/LOOREE/main/docs/demo.gif)
 
 ## Requirements
 
@@ -20,7 +20,16 @@ pastes the text into whatever app has focus. Nothing leaves the computer.
 - Python 3.11 or newer
 - Optional: an NVIDIA GPU with a current driver
 
-## Setup
+## Install
+
+```powershell
+py -m pip install looree
+```
+
+The install takes about 2 GB of disk, most of it the NVIDIA CUDA libraries
+that GPU support needs.
+
+To work on the code instead, install it from a clone:
 
 ```powershell
 git clone https://github.com/digitalblack210/LOOREE.git
@@ -29,27 +38,26 @@ py -m venv .venv
 .venv\Scripts\pip install -e .
 ```
 
-The install takes about 2 GB of disk, most of it the NVIDIA CUDA libraries
-that GPU support needs.
-
 ## Run
 
 ```powershell
-.venv\Scripts\pythonw -m looree
+pyw -m looree
 ```
+
+From a clone, run `.venv\Scripts\pythonw -m looree` instead.
 
 Looree starts without a console window and adds an icon to the system tray. To
 have it start when you sign in, right-click the tray icon and tick
 **Start with Windows**.
 
-The install also creates `.venv\Scripts\looree.exe`, which does the same thing,
+The install also creates a `looree.exe` command, which does the same thing,
 but Windows Smart App Control may block it because it is not signed.
 
 The first run downloads the Parakeet TDT 0.6B v3 model (int8 ONNX, about
 670 MB) from Hugging Face into the Hugging Face cache. After that Looree runs
 fully offline.
 
-To watch the log in a console instead, run `.venv\Scripts\python -m looree`.
+To watch the log in a console instead, run `py -m looree`.
 
 ## Use
 
@@ -144,6 +152,8 @@ or `enabled = false` to turn it off.
 
 ## Transcribe a file
 
+From a clone:
+
 ```powershell
 .venv\Scripts\python scripts\transcribe_wav.py path\to\audio.wav
 ```
@@ -154,7 +164,8 @@ script uses the GPU when one works and the CPU otherwise.
 ## Uninstall
 
 1. Untick **Start with Windows** in the tray menu, then choose **Quit**.
-2. Delete the cloned folder.
+2. Run `py -m pip uninstall looree`, or delete the cloned folder if you
+   installed from a clone.
 3. Delete `%APPDATA%\Looree` (settings) and `%LOCALAPPDATA%\Looree` (logs).
 4. To reclaim the model's disk space, delete its folder from the Hugging Face
    cache, `%USERPROFILE%\.cache\huggingface\hub` by default.
@@ -172,6 +183,10 @@ The tests run without a microphone, a GPU or the model. Bug reports and pull
 requests are welcome on the
 [issue tracker](https://github.com/digitalblack210/LOOREE/issues).
 
+To release, set `version` in `pyproject.toml`, commit, then push a tag of the
+same version, such as `v0.1.0`. The release workflow runs the tests, builds the
+package and publishes it to [PyPI](https://pypi.org/project/looree/).
+
 ## Credits
 
 Speech recognition uses NVIDIA's
@@ -185,4 +200,4 @@ NVIDIA.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](https://github.com/digitalblack210/LOOREE/blob/main/LICENSE).
