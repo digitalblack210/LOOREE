@@ -260,7 +260,7 @@ def worker(args: argparse.Namespace) -> int:
     if args.download is not None:
         download(args.model, args.download)
         return 0
-    clip_paths = [Path(p) for p in args.clip_paths]
+    clip_paths = [Path(p) for p in json.loads(Path(args.clip_list).read_text(encoding="utf-8"))]
     try:
         result = run_config(args.worker, args.model, clip_paths, args.repeats, args.clean)
     except Exception as exc:
@@ -397,7 +397,7 @@ def main() -> None:
     parser.add_argument("--worker", choices=list(CONFIGS), help=argparse.SUPPRESS)
     parser.add_argument("--download", help=argparse.SUPPRESS)
     parser.add_argument("--result", help=argparse.SUPPRESS)
-    parser.add_argument("--clip-paths", nargs="*", default=[], help=argparse.SUPPRESS)
+    parser.add_argument("--clip-list", help=argparse.SUPPRESS)
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
@@ -433,12 +433,15 @@ def main() -> None:
 
     results: dict[str, dict] = {}
     with tempfile.TemporaryDirectory() as scratch:
+        # In a file, not on the command line, which Windows caps at 32,767 characters.
+        clip_list = Path(scratch) / "clips.json"
+        clip_list.write_text(json.dumps([str(clip.wav) for clip in clips]), encoding="utf-8")
         for name in names:
             log.info("Running %s", name)
             result_file = Path(scratch) / f"{name}.json"
             arguments = ["--model", args.model, "--worker", name, "--result", str(result_file)]
             arguments += ["--repeats", str(args.repeats)] + ([] if args.clean else ["--raw"])
-            arguments += ["--clip-paths", *(str(clip.wav) for clip in clips)]
+            arguments += ["--clip-list", str(clip_list)]
             finished = spawn(arguments)
             if result_file.exists():
                 results[name] = json.loads(result_file.read_text(encoding="utf-8"))
