@@ -470,7 +470,9 @@ def main() -> None:
     print()
     ran = [row for row in rows if "error" not in row]
     if ran:
-        print(f"Most accurate: {min(ran, key=lambda row: row['wer'])['config']}")
+        # Every setting at the lowest rate: the same weights on CPU and CUDA often tie.
+        best = min(row["wer"] for row in ran)
+        print(f"Most accurate: {', '.join(row['config'] for row in ran if row['wer'] == best)}")
         print(f"Fastest: {max(ran, key=lambda row: row['speed'])['config']}")
     print(f"Per-clip results: {out / 'bench_results.csv'}")
     failed = [row["config"] for row in rows if "error" in row]
