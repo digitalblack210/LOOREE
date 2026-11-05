@@ -34,6 +34,8 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+# For scripts/bench.py.
+bench = ["nvidia-ml-py", "psutil"]
 
 [project.urls]
 Homepage = "https://github.com/digitalblack210/LOOREE"

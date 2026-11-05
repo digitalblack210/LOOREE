@@ -162,6 +162,88 @@ From a clone:
 Add `--device cpu` or `--device cuda` to choose a provider. Without it the
 script uses the GPU when one works and the CPU otherwise.
 
+## Benchmark the model settings
+
+`scripts/bench.py` runs your own recordings through the int8 and full precision
+models, on the CPU and on the GPU, and reports how fast each one is, how much
+memory it takes and how many words it gets wrong. Use it to choose the
+`[model]` settings in `config.toml`.
+
+Install the extra packages it needs, from a clone:
+
+```powershell
+.venv\Scripts\pip install -e .[bench]
+```
+
+### Record clips
+
+About 20 clips is enough. Mix short and long ones, quick speech, and the
+names and terms you actually dictate.
+
+```powershell
+.venv\Scripts\python scripts\record_clips.py --prompts scripts\bench_prompts.txt
+```
+
+Press Enter to start each clip and Enter to stop. The script shows each line of
+`bench_prompts.txt` to read aloud and saves it as that clip's transcript. Edit
+the file first to put in your own names. Leave out `--prompts` to speak freely
+instead; you then type what you said after each clip. Clips are recorded with
+Looree's own microphone code and the microphone set in `config.toml`, and saved
+to `samples\bench`, which git ignores.
+
+To use clips from somewhere else, put them in a folder as 16 kHz WAV files,
+each with a `.txt` of the same name holding exactly what was said. Leave "um"
+and "uh" out of the transcripts, because Looree removes them before pasting and
+the benchmark does the same (add `--raw` to score the model's text as is).
+
+### Run it
+
+```powershell
+.venv\Scripts\python scripts\bench.py
+```
+
+Give a folder to use clips from somewhere other than `samples\bench`, and
+`--settings` to run only some of `int8-cpu`, `int8-cuda`, `full-cpu` and
+`full-cuda`. To leave the GPU alone, run only the CPU settings; nothing is
+then loaded onto the GPU or read from it:
+
+```powershell
+.venv\Scripts\python scripts\bench.py --settings int8-cpu,full-cpu
+```
+
+Each clip is timed three times and the median is kept; change that with
+`--repeats`. The first run also downloads the full precision model, which is
+several times the size of the int8 one; downloads happen before anything is
+timed.
+
+Each setting runs in its own process. The script prints a table, saves it as
+`bench_results.md`, and saves every clip's transcript and score in
+`bench_results.csv`, both in the clips folder.
+
+- **Load** is the time to load the model and run Looree's warm-up.
+- **Median per clip** is the typical time for one clip, from its repeats.
+  **First run per clip** is the same from each clip's first timing only.
+  Dictation only ever sees first runs, because every recording is a new
+  length, and on CUDA repeats of the same clip can be quicker than that.
+- **Speed** is seconds of audio transcribed per second; 20 means a 10 second
+  dictation takes half a second.
+- **Peak RAM** is the most memory the process used.
+- **Peak VRAM** is how far the GPU's memory use rose above where it was before
+  the model loaded. Windows gives no per-program figure, so this is the whole
+  card: anything else that takes or frees GPU memory during the run, such as
+  a game or a model loaded in Ollama, lands in it. Run the CUDA settings with
+  the GPU idle. If the GPU's memory could not be read, the table says
+  "not measured" and why.
+- **Word error rate** counts wrong, missing and extra words against your
+  transcripts, ignoring capitals and punctuation. Numbers count as wrong when
+  the model writes "98" and the transcript says "ninety eight", so check the
+  CSV before blaming the model.
+
+A setting that cannot start or fails part way, such as a CUDA setting on a
+machine without a working GPU, is listed as not run, with the reason, and the
+script then exits with status 1. The vocabulary fixes in `config.toml` are not
+applied, so the error rate is the model's own.
+
 ## Uninstall
 
 1. Untick **Start with Windows** in the tray menu, then choose **Quit**.

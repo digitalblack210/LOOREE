@@ -1,0 +1,22 @@
+# Sentences for scripts/record_clips.py. One clip per line; lines starting with # are skipped.
+# Swap in names, places and terms you actually dictate, since those are where models slip.
+Okay.
+Sounds good, see you then.
+Can you send me the latest version when you get a chance?
+I'll be about ten minutes late, start without me.
+The meeting moved to Thursday at two thirty.
+Please forward this to Priya and copy the rest of the team.
+Let's push the release to next week so we have time to test it properly.
+The build failed again because the cache was out of date.
+I checked the logs and nothing stands out, so it might be the network.
+We need three more samples before we can call this finished.
+Remind me to call the vet about Biscuit tomorrow morning.
+Open the config file, change the device to cuda, then reload the model.
+Phoenix is supposed to hit ninety eight degrees on Saturday.
+The quick brown fox jumps over the lazy dog, then naps in the sun.
+Honestly I think the second option is better, but I could be talked out of it.
+Add milk, eggs, coffee, and the good bread to the shopping list.
+If the first test passes and the second one does not, the bug is probably in the parser.
+Thanks for the help yesterday, it saved me a whole afternoon of digging.
+I spent most of the weekend rewriting the importer, and it's finally about twice as fast as the old one, which is nice because the old one was painful.
+Can we talk about this tomorrow instead?
