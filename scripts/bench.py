@@ -234,6 +234,8 @@ def run_config(name: str, model: str, clip_paths: list[Path], repeats: int, clea
                 "clip": path.stem,
                 "audio_seconds": len(samples) / SAMPLE_RATE,
                 "seconds": statistics.median(times),
+                # Dictation only ever sees a first run: every recording is a new length.
+                "first_seconds": times[0],
                 "hypothesis": text,
             }
         )
@@ -291,6 +293,7 @@ def summarise(name: str, result: dict, references: dict[str, str]) -> dict:
         "provider": result["provider"].removesuffix("ExecutionProvider"),
         "load_seconds": result["load_seconds"],
         "median_seconds": statistics.median(clip["seconds"] for clip in clips),
+        "first_seconds": statistics.median(clip["first_seconds"] for clip in clips),
         "speed": audio / seconds if seconds else 0.0,
         "peak_ram_mb": result["peak_ram"] / 2**20,
         "peak_vram_mb": None if result["peak_vram"] is None else result["peak_vram"] / 2**20,
@@ -311,13 +314,13 @@ def markdown_table(rows: list[dict], clip_count: int, audio_seconds: float) -> s
         f"{clip_count} clips, {audio_seconds:.0f} s of audio. Speed is seconds of audio per second "
         "of transcription; higher is faster.",
         "",
-        "| Setting | Ran on | Load (s) | Median per clip (s) | Speed (x real time) "
-        "| Peak RAM (MB) | Peak VRAM (MB) | Word error rate |",
-        "|---|---|---|---|---|---|---|---|",
+        "| Setting | Ran on | Load (s) | Median per clip (s) | First run per clip (s) "
+        "| Speed (x real time) | Peak RAM (MB) | Peak VRAM (MB) | Word error rate |",
+        "|---|---|---|---|---|---|---|---|---|",
     ]
     for row in rows:
         if "error" in row:
-            lines.append(f"| {row['config']} | not run: {_cell(row['error'])} | | | | | | |")
+            lines.append(f"| {row['config']} | not run: {_cell(row['error'])} | | | | | | | |")
             continue
         if row["peak_vram_mb"] is not None:
             vram = f"{row['peak_vram_mb']:.0f}"
@@ -326,7 +329,8 @@ def markdown_table(rows: list[dict], clip_count: int, audio_seconds: float) -> s
             vram = "not measured" if row.get("vram_error") else ""
         lines.append(
             f"| {row['config']} | {row['provider']} | {row['load_seconds']:.1f} "
-            f"| {row['median_seconds']:.2f} | {row['speed']:.1f} | {row['peak_ram_mb']:.0f} "
+            f"| {row['median_seconds']:.2f} | {row['first_seconds']:.2f} | {row['speed']:.1f} "
+            f"| {row['peak_ram_mb']:.0f} "
             f"| {vram} | {row['wer']:.1%} |"
         )
     notes = [
@@ -346,6 +350,7 @@ def write_csv(path: Path, results: dict[str, dict], references: dict[str, str]) 
         "clip",
         "audio_seconds",
         "seconds",
+        "first_seconds",
         "speed",
         "wer",
         "reference",
@@ -364,6 +369,7 @@ def write_csv(path: Path, results: dict[str, dict], references: dict[str, str]) 
                         "clip": clip["clip"],
                         "audio_seconds": f"{clip['audio_seconds']:.2f}",
                         "seconds": f"{clip['seconds']:.3f}",
+                        "first_seconds": f"{clip['first_seconds']:.3f}",
                         "speed": f"{clip['audio_seconds'] / clip['seconds']:.1f}",
                         "wer": f"{word_error_rate([reference], [clip['hypothesis']]):.3f}",
                         "reference": reference,
