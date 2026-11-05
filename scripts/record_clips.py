@@ -10,6 +10,7 @@ type what you said after each clip. Clips are saved as 16 kHz mono WAV files wit
 
 import argparse
 import logging
+import sys
 import wave
 from pathlib import Path
 
@@ -37,11 +38,16 @@ def next_number(folder: Path) -> int:
 
 
 def configured_mic() -> str | int | None:
-    """The microphone set in Looree's config.toml, so clips match real dictation."""
+    """The microphone set in Looree's config.toml, so clips match real dictation.
+
+    Passed on as the app passes it: device index 0 is a device, and a string is part of
+    a device name even when it is all digits.
+    """
     path = config_path()
     if not path.exists():
         return None
-    return parse_config(path.read_text(encoding="utf-8")).mic_device or None
+    device = parse_config(path.read_text(encoding="utf-8")).mic_device
+    return device if device != "" else None
 
 
 def main() -> None:
@@ -58,9 +64,12 @@ def main() -> None:
     if args.prompts:
         prompts = [line.strip() for line in args.prompts.read_text(encoding="utf-8").splitlines()]
         prompts = [line for line in prompts if line and not line.startswith("#")]
-    mic = args.mic if args.mic is not None else configured_mic()
-    if isinstance(mic, str) and mic.isdigit():
-        mic = int(mic)
+        if not prompts:
+            sys.exit(f"{args.prompts} has no prompts in it; lines starting with # are skipped")
+    if args.mic is not None:
+        mic = int(args.mic) if args.mic.isdigit() else args.mic
+    else:
+        mic = configured_mic()
 
     args.folder.mkdir(parents=True, exist_ok=True)
     recorder = Recorder(device=mic, keep_open=True)
