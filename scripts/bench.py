@@ -19,6 +19,7 @@ import sys
 import tempfile
 import threading
 import time
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -45,7 +46,7 @@ class Clip:
 
 
 def find_clips(folder: Path) -> list[Clip]:
-    """Every WAV in the folder that has a non-empty .txt beside it."""
+    """Every WAV in the folder that has a .txt beside it with words in it."""
     clips = []
     for wav in sorted(folder.glob("*.wav")):
         txt = wav.with_suffix(".txt")
@@ -53,8 +54,8 @@ def find_clips(folder: Path) -> list[Clip]:
             log.warning("Skipping %s: no %s", wav.name, txt.name)
             continue
         reference = " ".join(txt.read_text(encoding="utf-8").split())
-        if not reference:
-            log.warning("Skipping %s: %s is empty", wav.name, txt.name)
+        if not words(reference):
+            log.warning("Skipping %s: %s has no words to score against", wav.name, txt.name)
             continue
         clips.append(Clip(wav.stem, wav, reference))
     return clips
@@ -74,32 +75,46 @@ def read_clip(path: Path) -> np.ndarray:
 
 # --- word error rate ------------------------------------------------------
 
+# Hyphens and dashes become spaces before punctuation goes, so "push-to-talk" matches
+# "push to talk".
+_DASHES = str.maketrans(dict.fromkeys("-–—", " "))
 
-def _wer_transform():
-    import jiwer
 
-    # Parakeet writes punctuation and capitals; the comparison is on words only.
-    # Hyphens become spaces first so "push-to-talk" matches "push to talk".
-    return jiwer.Compose(
-        [
-            jiwer.ToLowerCase(),
-            jiwer.SubstituteRegexes({r"[-–—]": " "}),
-            jiwer.RemovePunctuation(),
-            jiwer.RemoveMultipleSpaces(),
-            jiwer.Strip(),
-            jiwer.ReduceToListOfListOfWords(),
-        ]
-    )
+def words(text: str) -> list[str]:
+    """The words of a transcript as they are scored: lower case, without punctuation.
+
+    Parakeet writes punctuation and capitals; the comparison is on words only.
+    Punctuation is every character Unicode files under P, as in jiwer's RemovePunctuation.
+    """
+    text = text.lower().translate(_DASHES)
+    return "".join(ch for ch in text if not unicodedata.category(ch).startswith("P")).split()
+
+
+def word_errors(reference: list[str], hypothesis: list[str]) -> int:
+    """Substitutions, deletions and insertions that turn the reference into the hypothesis."""
+    previous = list(range(len(hypothesis) + 1))
+    for i, wanted in enumerate(reference, start=1):
+        current = [i]
+        for j, heard in enumerate(hypothesis, start=1):
+            current.append(min(previous[j] + 1, current[j - 1] + 1, previous[j - 1] + (wanted != heard)))
+        previous = current
+    return previous[-1]
 
 
 def word_error_rate(references: list[str], hypotheses: list[str]) -> float:
-    """Word error rate over all the given pairs, as a fraction (0.05 is 5%)."""
-    import jiwer
+    """Word error rate over all the given pairs, as a fraction (0.05 is 5%).
 
-    transform = _wer_transform()
-    # An empty transcript would be dropped by the transform and misalign the lists.
-    hypotheses = [hypothesis if hypothesis.strip() else "<empty>" for hypothesis in hypotheses]
-    return jiwer.wer(references, hypotheses, reference_transform=transform, hypothesis_transform=transform)
+    All the errors over all the reference words, so long clips weigh more than short ones.
+    """
+    reference_words = [words(reference) for reference in references]
+    total = sum(len(reference) for reference in reference_words)
+    if not total:
+        raise ValueError("the reference transcripts have no words to score against")
+    errors = sum(
+        word_errors(reference, words(hypothesis))
+        for reference, hypothesis in zip(reference_words, hypotheses, strict=True)
+    )
+    return errors / total
 
 
 # --- memory sampling ------------------------------------------------------
