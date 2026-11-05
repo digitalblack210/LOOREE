@@ -203,29 +203,46 @@ the benchmark does the same (add `--raw` to score the model's text as is).
 ```
 
 Give a folder to use clips from somewhere other than `samples\bench`, and
-`--configs int8-cpu,full-cuda` to run only some of `int8-cpu`, `int8-cuda`,
-`full-cpu` and `full-cuda`. Each clip is timed three times and the median is
-kept; change that with `--repeats`. The first run also downloads the full
-precision model, which is several times the size of the int8 one.
+`--settings` to run only some of `int8-cpu`, `int8-cuda`, `full-cpu` and
+`full-cuda`. To leave the GPU alone, run only the CPU settings; nothing is
+then loaded onto the GPU or read from it:
+
+```powershell
+.venv\Scripts\python scripts\bench.py --settings int8-cpu,full-cpu
+```
+
+Each clip is timed three times and the median is kept; change that with
+`--repeats`. The first run also downloads the full precision model, which is
+several times the size of the int8 one; downloads happen before anything is
+timed.
 
 Each setting runs in its own process. The script prints a table, saves it as
 `bench_results.md`, and saves every clip's transcript and score in
 `bench_results.csv`, both in the clips folder.
 
 - **Load** is the time to load the model and run Looree's warm-up.
+- **Median per clip** is the typical time for one clip, from its repeats.
+  **First run per clip** is the same from each clip's first timing only.
+  Dictation only ever sees first runs, because every recording is a new
+  length, and on CUDA repeats of the same clip can be quicker than that.
 - **Speed** is seconds of audio transcribed per second; 20 means a 10 second
   dictation takes half a second.
 - **Peak RAM** is the most memory the process used.
 - **Peak VRAM** is how far the GPU's memory use rose above where it was before
-  the model loaded, so close other GPU programs first.
+  the model loaded. Windows gives no per-program figure, so this is the whole
+  card: anything else that takes or frees GPU memory during the run, such as
+  a game or a model loaded in Ollama, lands in it. Run the CUDA settings with
+  the GPU idle. If the GPU's memory could not be read, the table says
+  "not measured" and why.
 - **Word error rate** counts wrong, missing and extra words against your
   transcripts, ignoring capitals and punctuation. Numbers count as wrong when
   the model writes "98" and the transcript says "ninety eight", so check the
   CSV before blaming the model.
 
-A CUDA setting that cannot start on this machine is listed as not run, with
-the reason. The vocabulary fixes in `config.toml` are not applied, so the
-error rate is the model's own.
+A setting that cannot start or fails part way, such as a CUDA setting on a
+machine without a working GPU, is listed as not run, with the reason, and the
+script then exits with status 1. The vocabulary fixes in `config.toml` are not
+applied, so the error rate is the model's own.
 
 ## Uninstall
 

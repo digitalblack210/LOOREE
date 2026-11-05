@@ -1,6 +1,6 @@
 """Compare model settings on your own recordings: speed, memory and word error rate.
 
-Usage: python scripts/bench.py [clips folder] [--configs int8-cpu,full-cuda,...] [--repeats N]
+Usage: python scripts/bench.py [clips folder] [--settings int8-cpu,full-cpu,...] [--repeats N]
 
 The clips folder holds WAV files, each with a .txt of the same name holding the exact
 words spoken. Every setting runs in its own process, so its memory peaks are its own.
