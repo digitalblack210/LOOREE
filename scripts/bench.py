@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import json
 import logging
 import statistics
@@ -20,6 +21,7 @@ import tempfile
 import threading
 import time
 import unicodedata
+import wave
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -36,6 +38,27 @@ CONFIGS = {
     "full-cuda": ("", "cuda"),
 }
 SAMPLE_INTERVAL = 0.02
+# module -> the package in the bench extra that provides it
+EXTRAS = {"psutil": "psutil", "pynvml": "nvidia-ml-py"}
+
+
+def parse_settings(text: str) -> list[str]:
+    """The settings named in a comma-separated list, in the order given, each once."""
+    names = list(dict.fromkeys(name.strip() for name in text.split(",") if name.strip()))
+    unknown = [name for name in names if name not in CONFIGS]
+    if unknown:
+        raise ValueError(f"unknown setting {', '.join(unknown)}; choose from {', '.join(CONFIGS)}")
+    if not names:
+        raise ValueError(f"no settings given; choose from {', '.join(CONFIGS)}")
+    return names
+
+
+def missing_extras(names: list[str]) -> list[str]:
+    """Packages these settings need from the bench extra that are not installed."""
+    modules = ["psutil"]
+    if any(CONFIGS[name][1] == "cuda" for name in names):
+        modules.append("pynvml")
+    return [EXTRAS[module] for module in modules if importlib.util.find_spec(module) is None]
 
 
 @dataclass
@@ -67,7 +90,10 @@ def read_clip(path: Path) -> np.ndarray:
 
     from looree.transcriber import SAMPLE_RATE
 
-    samples, rate = read_wav(str(path))
+    try:
+        samples, rate = read_wav(str(path))
+    except (EOFError, wave.Error) as exc:
+        raise ValueError(f"{path.name} is not a PCM WAV file ({exc})") from exc
     if rate != SAMPLE_RATE:
         raise ValueError(f"{path.name} is {rate} Hz; record or export it at {SAMPLE_RATE} Hz")
     return samples.mean(axis=1).astype(np.float32)
@@ -137,6 +163,7 @@ class PeakMemory:
         self._gpu = None
         self.vram_baseline = 0
         self.peak_vram = 0
+        self.vram_error: str | None = None
         if gpu:
             try:
                 import pynvml
@@ -146,6 +173,7 @@ class PeakMemory:
                 self.vram_baseline = self.peak_vram = pynvml.nvmlDeviceGetMemoryInfo(self._gpu).used
             except Exception as exc:
                 log.warning("VRAM will not be measured (%s)", exc)
+                self.vram_error = str(exc) or type(exc).__name__
                 self._gpu = None
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
@@ -215,6 +243,7 @@ def run_config(name: str, model: str, clip_paths: list[Path], repeats: int, clea
         "load_seconds": load_seconds,
         "peak_ram": peak_ram,
         "peak_vram": peak_vram,
+        "vram_error": memory.vram_error,
         "clips": clips,
     }
 
@@ -226,12 +255,21 @@ def download(model: str, quantization: str) -> None:
     onnx_asr.load_model(model, quantization=quantization or None, providers=["CPUExecutionProvider"])
 
 
-def worker(args: argparse.Namespace) -> None:
+def worker(args: argparse.Namespace) -> int:
+    """Exit status for one child process: 0 when it did its job."""
     if args.download is not None:
         download(args.model, args.download)
-        return
-    result = run_config(args.worker, args.model, [Path(p) for p in args.clip_paths], args.repeats, args.clean)
+        return 0
+    clip_paths = [Path(p) for p in args.clip_paths]
+    try:
+        result = run_config(args.worker, args.model, clip_paths, args.repeats, args.clean)
+    except Exception as exc:
+        # A failure part way through (out of memory on a long clip, a CUDA error) goes in
+        # the table with its reason, not just as an exit code.
+        log.exception("%s failed", args.worker)
+        result = {"error": f"{type(exc).__name__}: {exc}"}
     Path(args.result).write_text(json.dumps(result), encoding="utf-8")
+    return 1 if "error" in result else 0
 
 
 def spawn(arguments: list[str]) -> subprocess.CompletedProcess:
@@ -256,10 +294,16 @@ def summarise(name: str, result: dict, references: dict[str, str]) -> dict:
         "speed": audio / seconds if seconds else 0.0,
         "peak_ram_mb": result["peak_ram"] / 2**20,
         "peak_vram_mb": None if result["peak_vram"] is None else result["peak_vram"] / 2**20,
+        "vram_error": result.get("vram_error"),
         "wer": word_error_rate(
             [references[clip["clip"]] for clip in clips], [clip["hypothesis"] for clip in clips]
         ),
     }
+
+
+def _cell(text: str) -> str:
+    """Text that keeps a Markdown table intact: one line, no column breaks."""
+    return " ".join(str(text).split()).replace("|", "\\|")
 
 
 def markdown_table(rows: list[dict], clip_count: int, audio_seconds: float) -> str:
@@ -273,14 +317,25 @@ def markdown_table(rows: list[dict], clip_count: int, audio_seconds: float) -> s
     ]
     for row in rows:
         if "error" in row:
-            lines.append(f"| {row['config']} | not run: {row['error']} | | | | | | |")
+            lines.append(f"| {row['config']} | not run: {_cell(row['error'])} | | | | | | |")
             continue
-        vram = "" if row["peak_vram_mb"] is None else f"{row['peak_vram_mb']:.0f}"
+        if row["peak_vram_mb"] is not None:
+            vram = f"{row['peak_vram_mb']:.0f}"
+        else:
+            # Blank for a CPU setting; a CUDA setting whose VRAM could not be read says so.
+            vram = "not measured" if row.get("vram_error") else ""
         lines.append(
             f"| {row['config']} | {row['provider']} | {row['load_seconds']:.1f} "
             f"| {row['median_seconds']:.2f} | {row['speed']:.1f} | {row['peak_ram_mb']:.0f} "
             f"| {vram} | {row['wer']:.1%} |"
         )
+    notes = [
+        f"VRAM was not measured for {row['config']}: {_cell(row['vram_error'])}"
+        for row in rows
+        if row.get("vram_error")
+    ]
+    if notes:
+        lines += ["", *notes]
     return "\n".join(lines)
 
 
@@ -323,7 +378,9 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("clips", nargs="?", type=Path, default=DEFAULT_CLIPS, help=f"default {DEFAULT_CLIPS}")
     parser.add_argument(
+        "--settings",
         "--configs",
+        dest="settings",
         default=",".join(CONFIGS),
         help=f"comma-separated settings to run, from {', '.join(CONFIGS)} (default all)",
     )
@@ -345,15 +402,18 @@ def main() -> None:
 
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     if args.worker or args.download is not None:
-        worker(args)
-        return
+        sys.exit(worker(args))
 
-    names = [name.strip() for name in args.configs.split(",") if name.strip()]
-    unknown = [name for name in names if name not in CONFIGS]
-    if unknown:
-        parser.error(f"unknown setting {', '.join(unknown)}; choose from {', '.join(CONFIGS)}")
+    try:
+        names = parse_settings(args.settings)
+    except ValueError as exc:
+        parser.error(str(exc))
     if args.repeats < 1:
         parser.error("--repeats must be at least 1")
+    # Checked now, before the models load, not found missing in every child process.
+    missing = missing_extras(names)
+    if missing:
+        sys.exit(f"Missing {', '.join(missing)}. From the clone: .venv\\Scripts\\pip install -e .[bench]")
 
     clips = find_clips(args.clips)
     if not clips:
@@ -383,7 +443,10 @@ def main() -> None:
             if result_file.exists():
                 results[name] = json.loads(result_file.read_text(encoding="utf-8"))
             else:
-                results[name] = {"error": f"crashed with exit code {finished.returncode}"}
+                code = finished.returncode
+                # Windows gives a native crash as an NTSTATUS code, which is looked up in hex.
+                status = f" (0x{code:08X})" if code > 255 else ""
+                results[name] = {"error": f"crashed with exit code {code}{status}"}
             if "error" in results[name]:
                 log.warning("%s not run: %s", name, results[name]["error"])
 
@@ -401,6 +464,9 @@ def main() -> None:
         print(f"Most accurate: {min(ran, key=lambda row: row['wer'])['config']}")
         print(f"Fastest: {max(ran, key=lambda row: row['speed'])['config']}")
     print(f"Per-clip results: {out / 'bench_results.csv'}")
+    failed = [row["config"] for row in rows if "error" in row]
+    if failed:
+        sys.exit(f"{len(failed)} of {len(rows)} settings did not run: {', '.join(failed)}")
 
 
 if __name__ == "__main__":
